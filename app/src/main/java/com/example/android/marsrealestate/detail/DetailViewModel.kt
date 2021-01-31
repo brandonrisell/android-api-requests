@@ -19,10 +19,23 @@ package com.example.android.marsrealestate.detail
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
-import com.example.android.marsrealestate.network.MarsProperty
+import androidx.lifecycle.ViewModelProvider
+import com.example.android.marsrealestate.network.MarsPropertyListing
 
 /**
  * The [ViewModel] that is associated with the [DetailFragment].
  */
-class DetailViewModel(@Suppress("UNUSED_PARAMETER")marsProperty: MarsProperty, app: Application) : AndroidViewModel(app) {
+class DetailViewModel(@Suppress("UNUSED_PARAMETER") property: MarsPropertyListing, app: Application) : AndroidViewModel(app) {
+}
+
+class DetailViewModelFactory(
+    private val property: MarsPropertyListing,
+    private val application: Application) : ViewModelProvider.Factory {
+    @Suppress("unchecked_cast")
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(DetailViewModel::class.java)) {
+            return DetailViewModel(property, application) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
 }

@@ -17,23 +17,24 @@
 package com.example.android.marsrealestate.detail
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.android.marsrealestate.databinding.FragmentDetailBinding
+import com.example.android.marsrealestate.network.MarsPropertyListing
 
 /**
  * This [Fragment] will show the detailed information about a selected piece of Mars real estate.
  */
-class DetailFragment : Fragment() {
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+class DetailFragment(val property: MarsPropertyListing) : Fragment() {
 
-        @Suppress("UNUSED_VARIABLE")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val viewBinding = FragmentDetailBinding.bind(view)
+
         val application = requireNotNull(activity).application
-        val binding = FragmentDetailBinding.inflate(inflater)
-        binding.lifecycleOwner = this
-        return binding.root
+
+        val viewModel = ViewModelProvider(this, DetailViewModelFactory(property, application)).get(DetailViewModel::class.java)
     }
 }

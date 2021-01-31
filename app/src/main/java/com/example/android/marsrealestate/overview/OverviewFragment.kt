@@ -18,40 +18,49 @@
 package com.example.android.marsrealestate.overview
 
 import android.os.Bundle
-import android.view.*
+import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.android.marsrealestate.R
 import com.example.android.marsrealestate.databinding.FragmentOverviewBinding
+import com.example.android.marsrealestate.network.MarsPropertyResponse
 
 /**
  * This fragment shows the the status of the Mars real-estate web services transaction.
  */
-class OverviewFragment : Fragment() {
+class OverviewFragment : Fragment(R.layout.fragment_overview) {
 
-    /**
-     * Lazily initialize our [OverviewViewModel].
-     */
-    private val viewModel: OverviewViewModel by lazy {
-        ViewModelProvider(this).get(OverviewViewModel::class.java)
-    }
-
-    /**
-     * Inflates the layout with Data Binding, sets its lifecycle owner to the OverviewFragment
-     * to enable Data Binding to observe LiveData, and sets up the RecyclerView with an adapter.
-     */
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        val binding = FragmentOverviewBinding.inflate(inflater)
-
-        // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
-        binding.lifecycleOwner = this
-
-        // Giving the binding access to the OverviewViewModel
-        binding.viewModel = viewModel
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         setHasOptionsMenu(true)
-        return binding.root
+
+        val viewBinding = FragmentOverviewBinding.bind(view)
+        val viewModel = ViewModelProvider(this).get(OverviewViewModel::class.java)
+
+        val adapter = PhotoListAdapter()
+        viewBinding.photosList.adapter = adapter
+        viewModel.response.observe(viewLifecycleOwner) {
+            it?.let {
+                when (it) {
+                    is MarsPropertyResponse.Loading -> {
+                        // viewBinding.marsImage.load(R.drawable.loading_animation)
+                    }
+                    is MarsPropertyResponse.Error -> {
+                        // viewBinding.marsImage.load(R.drawable.ic_broken_image)
+                    }
+                    is MarsPropertyResponse.Success -> {
+                        adapter.submitList(it.listings)
+                    }
+                    is MarsPropertyResponse.Empty -> {
+                        // TODO: Show empty state
+                    }
+                }
+            }
+        }
     }
 
     /**
